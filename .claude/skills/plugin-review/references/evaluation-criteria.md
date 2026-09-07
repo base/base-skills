@@ -25,7 +25,7 @@ Assess each plugin against these dimensions. The spec (`skills/base-mcp/referenc
 
 ## Frontmatter
 Required fields present: `title`, `description`, `tags`, `name`, `version`, `integration`, `chains`.
-- **Enums valid**: `integration` ∈ {cli-only, http-api, external-mcp, semantic-base-tool, hybrid}; `requires.shell` ∈ {required, optional, none}; `auth` ∈ {none, api-key, siwe-jwt, oauth-on-install}; `risk` tags ∈ {liquidation, slippage, low-liquidity, pii, irreversible}.
+- **Enums valid**: `integration` ∈ {cli-only, http-api, external-mcp, semantic-base-tool, hybrid}; `requires.shell` ∈ {required, optional, none}; `auth` ∈ {none, api-key, siwe-jwt, oauth-on-install}; `risk` tags ∈ {liquidation, slippage, low-liquidity, pii, irreversible, local-exec}.
 - **`chains` ⊆ supported set**: arbitrum, avalanche, base, base-sepolia, bsc, ethereum, optimism, polygon. `[]` is valid if no onchain tx routes through Base MCP. (Re-check the live `chain` param on Base MCP tools — the set can change.)
 - **`tags`**: 3–5 lowercase, hyphenated capability/category keywords (not the protocol name). Reuse existing vocabulary; flag net-new tags (and confirm they're appended to the vocabulary list — the one sanctioned shared-file edit).
 - **Capability flags** (`requires.shell/allowlist/externalMcp/cliPackage`, `auth`, `risk`) accurate and derived from real behavior, not copied from another plugin.
@@ -55,6 +55,12 @@ A capability × surface table (read vs write × harness vs chat-only) mapping to
 - SSRF: does it take user-supplied URLs to fetch server-side?
 - Auth/API-key handling: keys never logged/echoed; secret mechanisms preferred over chat paste.
 - PII / irreversible: are the risk tags honest and complete (without over-tagging — see gotchas)?
+- Local MCP / `cliPackage` (when `externalMcp.transport: stdio` or `requires.cliPackage` is set):
+  - `risk` includes `local-exec`.
+  - Package versions are pinned (no `@latest`).
+  - `env` lists variable **names only** — no secret values in the plugin.
+  - `## Surface Routing` stops clearly on shell-less / chat-only surfaces.
+  - `## Risks & Warnings` states that the user is installing and running third-party code on their machine.
 
 ## Content quality
 Orchestration is realistic and actionable; example prompts are concrete (a read, a primary write, an edge/fallback); no copy-paste leftovers from another plugin; response shapes match reality.
