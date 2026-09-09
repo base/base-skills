@@ -34,7 +34,7 @@ covers checks an agent needs before it acts off-chain: `url_extract` /
 and `domain_check` (deliverability, registration age and registry status — the
 counterparty checks before an invoice or a signup is trusted) and
 `sanctions_name` (OFAC screening for people and companies, not just wallets).
-It also ships the only **B20** safety suite (~29 tools): B20 is Base's native token standard
+It also ships a 30-tool **B20** safety suite: B20 is Base's native token standard
 (live 2026-07-08), and unlike ERC-20 a B20 issuer can freeze or seize a holder's
 balance at the protocol level (Policy Registry / `burnBlocked`) — `b20_safety`
 reads those powers into one hold/caution/avoid verdict, and the wider suite covers
