@@ -52,7 +52,7 @@ All `api.vibes.base.org` endpoints (RPC proxy, payer, faucet) send permissive
 CORS headers, and so does `rpc.vibes.base.org` — so browser apps can talk to
 either. Prefer `rpc.vibes.base.org` for execution and reserve the `account/rpc`
 proxy for when you specifically want the hosted path. The public RPC is
-method-whitelisted: `eth_getHeaderBy*`, `eth_getBlockReceipts`,
+method-allowlisted: `eth_getHeaderBy*`, `eth_getBlockReceipts`,
 `eth_sendRawTransactionSync`, `eth_simulateV1` and `txpool_*` answer
 `rpc method is not whitelisted`.
 

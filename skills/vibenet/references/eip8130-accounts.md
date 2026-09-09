@@ -202,7 +202,7 @@ shape, check `src/eip8130/actions/getTransactionReceipt.ts` on the fork branch
 themselves) — it is still required for value-bearing `sendSponsoredCalls`, see
 [payer-sponsorship.md](payer-sponsorship.md). `sendTransactionSync` (EIP-7966
 `eth_sendRawTransactionSync`) also exists but the public vibenet RPC does not
-whitelist that method.
+allowlist that method.
 
 ## Canonical deployment
 

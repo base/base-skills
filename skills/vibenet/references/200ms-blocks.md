@@ -282,7 +282,7 @@ Measured on 2026-09-09 with a fresh account (deploy + first batch in one tx):
 | Broadcast → 8130 receipt (100ms polling) | 0.47s |
 | `eth_getCode` non-empty after the create receipt | first poll, <0.1s (the old "~1 block" lag is now ~200ms at most) |
 | Hosted payer accepts a sponsored tx right after the self-paid deploy | first attempt, no `actor is not bound` retry needed |
-| `sendTransactionSync` (`eth_sendRawTransactionSync`) | **not whitelisted** on `rpc.vibes.base.org` — use `sendTransaction` + `waitForTransactionReceipt` |
+| `sendTransactionSync` (`eth_sendRawTransactionSync`) | **not allowlisted** on `rpc.vibes.base.org` — use `sendTransaction` + `waitForTransactionReceipt` |
 
 ## Gotchas (all live-confirmed on vibenet)
 
@@ -296,7 +296,7 @@ Measured on 2026-09-09 with a fresh account (deploy + first batch in one tx):
   object from the nested `tx` body), and **`0x79` tx objects returned inside a
   block or via `eth_getTransactionByBlockNumberAndIndex` have no `hash` key**.
   Keep the hash `sendTransaction` returned and read the block's `timestampMs`.
-- **`eth_getHeaderByNumber/Hash` and `eth_getBlockReceipts` are not whitelisted**
+- **`eth_getHeaderByNumber/Hash` and `eth_getBlockReceipts` are not allowlisted**
   on the public RPC even though the spec adds `timestampMs` to them. Use
   `eth_getBlockByNumber` and per-tx receipts. `eth_sendRawTransactionSync`
   isn't either, so the fork's `sendTransactionSync` fails with
