@@ -18,7 +18,9 @@
 #   scripts/setup-viem-8130.sh [APP_DIR] [BUILD_DIR]
 #
 #   APP_DIR    project to install viem into (default: current directory)
-#   BUILD_DIR  where to clone+build the fork (default: <APP_DIR>/.viem-8130-src)
+#   BUILD_DIR  where to clone+build the fork (default: <APP_DIR>/.viem-8130-src;
+#              ~500 MB with node_modules — the script gitignores it in APP_DIR;
+#              share one BUILD_DIR outside the app when you have several apps)
 #
 # Env overrides:
 #   VIEM_FORK_REPO    (default: https://github.com/chunter-cb/viem)
@@ -60,6 +62,18 @@ echo "==> installing build deps (pnpm, via npx — no global install)"
 ( cd "$BUILD_DIR" && npx --yes pnpm install --ignore-scripts )
 echo "==> building viem"
 ( cd "$BUILD_DIR" && npx --yes pnpm run build )
+
+# 2b) Git hygiene: the build dir is a ~500 MB monorepo checkout. If it lives
+#     inside the app, make sure the app's .gitignore excludes it (idempotent).
+case "$BUILD_DIR" in
+  "$APP_DIR"/*)
+    REL="${BUILD_DIR#"$APP_DIR"/}/"
+    if ! grep -qxF "$REL" "$APP_DIR/.gitignore" 2>/dev/null; then
+      echo "==> adding $REL to $APP_DIR/.gitignore"
+      printf '\n# viem 8130 fork build (scripts/setup-viem-8130.sh)\n%s\n' "$REL" >> "$APP_DIR/.gitignore"
+    fi
+    ;;
+esac
 
 # 3) Link into the app. --install-links is REQUIRED: without it npm symlinks
 #    node_modules/viem to a path outside the project root, and bundlers

@@ -31,7 +31,7 @@ Consolidated skills that cover the most common use cases. Each uses progressive 
 | ----- | ------- | ----------- |
 | [build-on-base](./skills/build-on-base/SKILL.md) | `npx skills add base/skills --skill build-on-base` | Complete Base development playbook: network, contracts, wallet auth, payments, attribution, and migrations. Consolidates all individual skills into one. |
 | [base-mcp](./skills/base-mcp/SKILL.md) | `npx skills add base/skills --skill base-mcp` | Base MCP server — gives your AI assistant a wallet via mcp.base.org. Sending, swapping, signing, batched calls, balances, and partner plugins for lending, swaps, and more. |
-| [vibenet](./skills/vibenet/SKILL.md) | `npx skills add base/skills --skill vibenet` | Build on [vibenet](https://chain.base.org/vibenet), the Base Vibes devnet for native account abstraction (EIP-8130) with viem: smart accounts, batched calls, session keys and policies, and ERC-8168 payer gas sponsorship. |
+| [vibenet](./skills/vibenet/SKILL.md) | `npx skills add base/skills --skill vibenet` | Build on [vibenet](https://chain.base.org/vibenet), the Base Vibes devnet for native account abstraction (EIP-8130) and Cobalt 200ms native blocks, with viem: smart accounts, batched calls, session keys and policies, ERC-8168 payer gas sponsorship, and millisecond block timestamps. |
 
 ## Installation
 
@@ -73,6 +73,10 @@ Create an EIP-8130 smart account on vibenet and fund it from the faucet
 
 ```text
 Deploy a smart account on vibenet with sponsored gas, so the user needs no ETH
+```
+
+```text
+Send a transaction on vibenet and show me which 200ms block it landed in
 ```
 
 ## Contributing
