@@ -39,6 +39,29 @@ const receipt = await waitForTransactionReceipt(client, { hash });
 
 No faucet call and no user ETH is needed anywhere in this flow — the payer's
 `payer_auth` makes the protocol debit gas from the payer, not the sender.
+**Gas only**: if the sponsored calls *transfer value*, the account still has
+to hold that value — a sponsored 0.001 ETH tip from a zero-balance account
+reverts, a sponsored zero-value call does not.
+
+**Sponsored value transfers must be wallet-wrapped.** `sendTransaction`
+auto-routes value-bearing calls through the account, but `sendSponsoredCalls`
+does not: `calls: [{ to, value, data }]` throws `EIP-8130 calls cannot carry
+\`value\` on the wire` (live-confirmed on the current branch). Wrap the phase
+with `encodeWalletCalls` first — and remember the account must actually hold
+the value:
+
+```ts
+import { encodeWalletCalls } from "viem/eip8130";
+
+const { transactionHash } = (await sendSponsoredCalls(client, {
+  account,
+  payerClient,
+  calls: encodeWalletCalls({
+    account: account.address,
+    calls: [[{ to: recipient, value: parseEther("0.001"), data: "0x" }]],
+  })[0], // one phase → one wallet-routed executeBatch call
+})) as unknown as { transactionHash: Hex };
+```
 
 For self-submit (e.g. custom RPC / retry control), pass `mode: "sign"` — the
 call then resolves with the signed raw transaction, which you broadcast yourself
@@ -70,15 +93,25 @@ the fork branch.
 
 - Subsequent sponsored txs omit `account.createChange` — only the first tx
   carries it.
-- **Don't sponsor immediately after a self-paid deploy.** Account config
-  propagates ~1 block behind the receipt (the same lag as `eth_getCode` and
-  config read-backs), and the payer validates against the lagging state — so a
-  sponsored tx sent right after a successful deploy is rejected with
+- **Retry `actor is not bound` right after a self-paid deploy.** Account
+  config can propagate ~1 block behind the receipt (the same lag as
+  `eth_getCode` and config read-backs), and the payer validates against the
+  lagging state — a sponsored tx sent in that window is rejected with
   `EIP-8130 validation failed: actor is not bound`, surfaced as viem's
   `InvalidInputRpcError: Missing or invalid parameters`. Neither message points
-  at timing. Retry on `actor is not bound` (a few seconds is enough) or wait for
-  the account's code read-back before sponsoring. Live-confirmed: the same call
-  fails immediately after deploy and succeeds ~6s later.
+  at timing. On 2s blocks this was live-reproduced (fails immediately, succeeds
+  ~6s later); on today's 200ms vibenet a sponsored send ~0.8s after the deploy
+  receipt was accepted first try. Either way: retry on `actor is not bound`
+  (sub-second gaps suffice now) or wait for the account's code read-back.
+- **The payer itself can run out of ETH**, and it looks nothing like a budget
+  rejection: `InvalidInputRpcError` wrapping `Broadcast failed … insufficient
+  funds for gas * price + value: have <n> want <m>` from an internal
+  `http://base-client:8545` URL (live-hit 2026-08-21). The `have` figure is the
+  **payer wallet's** balance. Diagnose with `payer_getTerms` → the `payer`
+  address → `eth_getBalance`; on the devnet the fix is to faucet-drip the payer
+  address itself. Also: the terms may advertise only a `token` (USDV) offer
+  while sponsored `payer_sendTransaction` still works — don't gate on the offer
+  list.
 - `context.flow` lets the hosted payer budget free grants per
   `(sender, flow)` pair; pick a stable string per product surface
   (e.g. `"onboarding"`, `"transact"`).
